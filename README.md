@@ -1,6 +1,6 @@
 ### HIFINI 音乐磁场 增强
 
-油猴/暴力猴脚本
+#### 油猴/暴力猴脚本
 
 [GitHub](https://github.com/ewigl/hus)
 
@@ -16,4 +16,4 @@
 
 #### 其他推荐
 
--   [HIFINI 定时自动签到](https://github.com/ewigl/hifini-auto-checkin)
+-   [HIFINI 定时自动签到](https://github.com/ewigl/hifini-auto-checkin)：使用 GitHub Actions 定时自动签到。
