@@ -16,7 +16,7 @@
 
 -   自动填充百度网盘提取码
 
-![05](./images/00.png)
+![00](https://raw.githubusercontent.com/ewigl/hus/main/images/00.png)
 
 #### 其他推荐
 
