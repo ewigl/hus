@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         HIFINI 音乐磁场 增强
 // @namespace    https://github.com/ewigl/hus
-// @version      0.2.0
-// @description  一键自动回复，集中网盘链接，自动填充百度网盘提取码。
+// @version      0.2.1
+// @description  一键自动回复，汇总网盘链接，自动填充百度网盘提取码。
 // @author       Licht
 // @license      MIT
 // @homepage     https://github.com/ewigl/hus
@@ -92,7 +92,6 @@
         getLinkItems() {
             let netDiskLinks = utils.getAllNetDiskLinks()
             let pwds = utils.getAllPwds()
-            // 生成一个对象数组
 
             // 若链接与密码数量不等，则抛错（暂定）
             if (netDiskLinks.length !== pwds.length) {
@@ -132,7 +131,7 @@
     }
 
     const operation = {
-        // 快速回复当前帖，模拟操作方式。
+        // 快速回复当前帖，模拟点击操作方式。
         quickReply() {
             $(`#${constants.QUICK_REPLY_FORM_ID} #${constants.QUICK_REPLY_INPUT_ID}`).focus()
 
@@ -143,7 +142,7 @@
             //   or
             //   $("#quick_reply_form").submit();
 
-            // 可选 Ajax 方式
+            // 可选， Ajax 方式
             // To do, or not to do, that is the question.
         },
     }
@@ -183,7 +182,7 @@
             initAction.addQuickReplyButton()
 
             if (utils.isReplied()) {
-                console.log('HUS: is Replied.')
+                // console.log('HUS: is Replied.')
                 initAction.addNetDiskLinksPanel()
             }
 
