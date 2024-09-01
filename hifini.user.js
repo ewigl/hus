@@ -1,12 +1,13 @@
 // ==UserScript==
 // @name         HIFINI 音乐磁场 增强
 // @namespace    https://github.com/ewigl/hus
-// @version      0.2.1
-// @description  一键自动回复，汇总网盘链接，自动填充百度网盘提取码。
+// @version      0.3.0
+// @description  一键自动回复，汇总网盘链接，自动填充网盘提取码。
 // @author       Licht
 // @license      MIT
 // @homepage     https://github.com/ewigl/hus
 // @match        http*://www.hifini.com/thread-*.htm
+// @match        http*://*.lanzn.com/*
 // @icon         https://www.hifini.com/favicon.ico
 // @grant        GM_addStyle
 // ==/UserScript==
@@ -27,6 +28,12 @@
         REPLIED_CLASS: 'alert-success',
 
         DOWNLOAD_LINKS_PANEL_ID: 'hus_download_links_panel',
+
+        BAIDU_HOST: 'pan.baidu.com',
+        LANZOU_HOST: 'lanzn.com',
+
+        URL_PARAMS_PWD: 'pwd',
+        LANZOU_PWD_INPUT_ID: 'pwd',
     }
 
     // 自定义样式
@@ -62,12 +69,15 @@
             return $(`.${constants.REPLIED_CLASS}`).length > 0
         },
         isBaiduOrLanzou(url) {
-            if (url.includes('pan.baidu.com')) {
+            if (url.includes(constants.BAIDU_HOST)) {
                 return '百度'
-            } else if (url.includes('lanzn.com')) {
+            } else if (url.includes(constants.LANZOU_HOST)) {
                 return '蓝奏'
             }
             return '未知'
+        },
+        isInLanzouSite() {
+            return location.host.includes(constants.LANZOU_HOST)
         },
         // “解密”提取码
         getHiddenPwd(element) {
@@ -95,7 +105,7 @@
 
             // 若链接与密码数量不等，则抛错（暂定）
             if (netDiskLinks.length !== pwds.length) {
-                throw new Error('netDiskLinks.length !== pwds.length')
+                throw new Error('HIFINI User Script: netDiskLinks.length !== pwds.length')
             }
 
             return netDiskLinks.map((link, index) => {
@@ -109,7 +119,7 @@
         },
         // 获取页面内所有（a 标签）网盘链接（百度、蓝奏）
         getAllNetDiskLinks() {
-            return $('a[href*="pan.baidu.com"], a[href*="lanzn.com"]')
+            return $(`a[href*="${constants.BAIDU_HOST}"], a[href*="${constants.LANZOU_HOST}"]`)
                 .toArray()
                 .map((element) => {
                     return element.href
@@ -118,7 +128,6 @@
         // 获取页面内所有提取码（alert-success）
         getAllPwds() {
             let pwdElements = $(`.${constants.REPLIED_CLASS}`)
-            // console.log('pwdElements: ', pwdElements)
 
             let pwdArray = []
 
@@ -151,11 +160,14 @@
         addQuickReplyButton() {
             const quickReplyButtonDom = `<a id="${constants.QUICK_REPLY_BUTTON_ID}" class="btn btn-light btn-block mb-3"> 自动回复 </a>`
             $(`.${constants.ASIDE_CLASS}`).append(quickReplyButtonDom)
+
+            $(document).on('click', `#${constants.QUICK_REPLY_BUTTON_ID}`, operation.quickReply)
         },
         addNetDiskLinksPanel() {
             let linkItems = utils.getLinkItems()
 
             let linksDom = ''
+
             linkItems.forEach((item) => {
                 linksDom += `
                 <a class="btn btn-light btn-block" href="${item.link}" target="_blank"> ${item.type} / ${item.pwd} </a>`
@@ -165,28 +177,36 @@
             <div id="${constants.DOWNLOAD_LINKS_PANEL_ID}" class="card">
                 <div class="m-3 text-center">
                     ${linksDom}
-			    </div>
+                </div>
             </div>
             `
 
             $(`.${constants.ASIDE_CLASS}`).append(downloadPanelDom)
         },
-        addListeners() {
-            $(document).on('click', `#${constants.QUICK_REPLY_BUTTON_ID}`, operation.quickReply)
+        autoFillLanzouPwd() {
+            const urlParams = new URLSearchParams(window.location.search)
+
+            if (urlParams.has(constants.URL_PARAMS_PWD)) {
+                let pwd = urlParams.get(constants.URL_PARAMS_PWD)
+
+                $(`#${constants.LANZOU_PWD_INPUT_ID}`).val(pwd)
+            }
         },
     }
 
     // Main
     const main = {
         init() {
-            initAction.addQuickReplyButton()
+            if (utils.isInLanzouSite()) {
+                // 自动填充蓝奏网盘提取码
+                initAction.autoFillLanzouPwd()
+            } else {
+                initAction.addQuickReplyButton()
 
-            if (utils.isReplied()) {
-                // console.log('HUS: is Replied.')
-                initAction.addNetDiskLinksPanel()
+                utils.isReplied() && initAction.addNetDiskLinksPanel()
             }
 
-            initAction.addListeners()
+            console.log('HIFINI User Script is ready.')
         },
     }
 
