@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HIFINI 音乐磁场 增强
 // @namespace    https://github.com/ewigl/hus
-// @version      0.3.0
+// @version      0.3.1
 // @description  一键自动回复，汇总网盘链接，自动填充网盘提取码。
 // @author       Licht
 // @license      MIT
@@ -34,6 +34,8 @@
 
         URL_PARAMS_PWD: 'pwd',
         LANZOU_PWD_INPUT_ID: 'pwd',
+
+        USER_LOGIN_URL: '/user-login.htm',
     }
 
     // 自定义样式
@@ -142,14 +144,21 @@
     const operation = {
         // 快速回复当前帖，模拟点击操作方式。
         quickReply() {
-            $(`#${constants.QUICK_REPLY_FORM_ID} #${constants.QUICK_REPLY_INPUT_ID}`).focus()
+            const replyInputDom = $(`#${constants.QUICK_REPLY_INPUT_ID}`)
+            const submitButtonDom = $(`#${constants.QUICK_REPLY_SUBMIT_ID}`)
 
-            $(`#${constants.QUICK_REPLY_FORM_ID} #${constants.QUICK_REPLY_INPUT_ID}`).val(utils.getRandomReply())
+            if (replyInputDom.length) {
+                replyInputDom.focus()
+                replyInputDom.val(utils.getRandomReply())
 
-            $(`#${constants.QUICK_REPLY_SUBMIT_ID}`).click()
+                submitButtonDom.click()
 
-            //   or
-            //   $("#quick_reply_form").submit();
+                //   or
+                //   $("#quick_reply_form").submit();
+            } else {
+                console.log('Need to Login.')
+                window.location.href = constants.USER_LOGIN_URL
+            }
 
             // 可选， Ajax 方式
             // To do, or not to do, that is the question.
